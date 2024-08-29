@@ -27,7 +27,7 @@ public class MazeGame
     }
 
     public MazeGame(String mazeFile) throws FileNotFoundException{  
-        this.playerInput = new Scanner(System.in); 
+        playerInput = new Scanner(System.in); 
         new MazeGame(mazeFile, playerInput);
     }
     //CONSTRUCTORS
@@ -47,14 +47,14 @@ public class MazeGame
         System.out.print("Enter your move (up, down, left, right, or q to quit): ");
     }
     private boolean playerAtGoal() {
-        return player[ROW] == goal[ROW] && player[COL] == goal[COL];
+        return getPlayerRow() == getGoalRow() && getPlayerCol() == getGoalCol();
     }
     private boolean valid(int row, int col) {
-        return blocked[row][col] && 
-        row < HEIGHT && 
+        return row < HEIGHT && 
         col < WIDTH &&
         row >= 0 &&
-        col >= 0; 
+        col >= 0 && 
+        !blocked[row][col]; 
     }
     private void visit(int row, int col) {
         visited[row][col] = true;
@@ -149,40 +149,28 @@ public class MazeGame
                 if(valid(player[0] - 1, player[1])) {
                     player[ROW] -= 1;
                     visit(player[0] - 1, player[1]);
-                    if(playerAtGoal()) {
-                        return true;
-                    }
-                    return false;
+                    return playerAtGoal();
             }
                 break;
             case 'd':
                 if(valid(player[0] + 1, player[1])) {
                     player[ROW] += 1;
                     visit(player[0] + 1, player[1]);
-                    if(playerAtGoal()) {
-                        return true;
-                    }
-                    return false;
+                    return playerAtGoal();
             }
                 break;
             case 'l':
                 if(valid(player[0], player[1] - 1)) {
                     player[COL] -= 1;
                     visit(player[0], player[1] - 1);
-                    if(playerAtGoal()) {
-                        return true;
-                    }
-                    return false;
+                    return playerAtGoal();
                 }
                 break;
             case 'r':
                 if(valid(player[0], player[1] + 1)) {
                     player[COL] += 1;
                     visit(player[0], player[1] + 1);
-                    if(playerAtGoal()) {
-                        return true;
-                    }
-                    return false;
+                    return playerAtGoal();
                 }
                 break;
             case 'q':
@@ -211,25 +199,25 @@ public class MazeGame
 
     //GETTERS
     public Scanner getPlayerInput() {
-        return this.playerInput;
+        return playerInput;
     }
     public int getPlayerCol() {
-        return this.player[COL];
+        return player[COL];
     }
     public int getPlayerRow() {
-        return this.player[ROW];
+        return player[ROW];
     }
     public int getGoalCol() {
-        return this.goal[COL];
+        return goal[COL];
     }
     public int getGoalRow() {
-        return this.goal[ROW];
+        return goal[ROW];
     }
     public int getStartCol() {
-        return this.start[COL];
+        return start[COL];
     }
     public int getStartRow() {
-        return this.start[ROW];
+        return start[ROW];
     }
     public boolean[][] getBlocked() {
         return copyTwoDimBoolArray(blocked);
