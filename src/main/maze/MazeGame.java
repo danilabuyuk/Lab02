@@ -13,11 +13,13 @@ public class MazeGame
     private final static int ROW = 0;
     private final static int COL = 1;
     private Scanner playerInput;
-    private boolean[][] blocked = new boolean[HEIGHT][WIDTH];
-    private boolean[][] visited = new boolean[HEIGHT][WIDTH];
-    private int[] player = new int[2];
-    private int[] goal = new int[2];
-    private int[] start = new int[2];
+    private boolean[][] blocked;
+    private boolean[][] visited;
+    private int[] player;
+    private int[] goal;
+    private int[] start;
+    String output = "";
+    String temp = "";
     //FIELDS
 
     //CONSTRUCTORS
@@ -29,6 +31,7 @@ public class MazeGame
     public MazeGame(String mazeFile) throws FileNotFoundException{  
         playerInput = new Scanner(System.in); 
         new MazeGame(mazeFile, playerInput);
+        loadMaze(mazeFile);
     }
     //CONSTRUCTORS
 
@@ -47,7 +50,7 @@ public class MazeGame
         System.out.print("Enter your move (up, down, left, right, or q to quit): ");
     }
     private boolean playerAtGoal() {
-        return getPlayerRow() == getGoalRow() && getPlayerCol() == getGoalCol();
+        return player[0] == goal[0] && player[1] == goal[1];
     }
     private boolean valid(int row, int col) {
         return row < HEIGHT && 
@@ -57,7 +60,7 @@ public class MazeGame
         !blocked[row][col]; 
     }
     private void visit(int row, int col) {
-        visited[row][col] = true;
+        this.visited[row][col] = true;
     }
     private void loadMaze(String mazeFile) throws FileNotFoundException {
     	blocked = new boolean[HEIGHT][WIDTH];
@@ -68,78 +71,90 @@ public class MazeGame
     	
      	File file = new File(mazeFile);
      	Scanner mapFile = new Scanner(new FileReader(file));
-
-    	while (mapFile.hasNext())
-    	{
             for (int i = 0; i < HEIGHT; i++)
             {
                 for (int j = 0; j < WIDTH; j++)
                 {
-    				switch (mapFile.next()) {
+                    temp = mapFile.next();
+                    switch (temp) {
                         case "1":
-                            blocked[i][j] = true;
+                            setBlockedVal(true, i, j);
+                            //System.out.print("1 ");
                             break;
                         case "S":
-                            blocked[i][j] = false;
+                            setBlockedVal(false, i, j);
                             setStartRow(i);
                             setStartCol(j);
                             setPlayerRow(i);
                             setPlayerCol(j);
+                            //System.out.println(getStartRow());
+                            //System.out.println(getStartCol());
+                            //System.out.println(getPlayerRow());
+                            //System.out.println(getPlayerCol());
+                            //System.out.print("S\n");
                             break;
                         case "G":
-                            blocked[i][j] = false;
+                            setBlockedVal(false, i, j);
                             setGoalRow(i);
                             setGoalCol(j);
+                            //System.out.println(getGoalRow());
+                            //System.out.println(getGoalCol());
+                            //System.out.print("G\n");
                             break;
                         case "0":
-                            blocked[i][j] = false;
+                            setBlockedVal(false, i ,j);
+                            //System.out.print("0 ");
                             break;
                         default:
                             break;
                     }				
                 }
-            }
+            
         }
         mapFile.close();
+        
     }
     public void printMaze()
     {  	
-    	System.out.println("*---------------------------------------*");
+        
+    	output +="*---------------------------------------*\n";
     	
     	for (int i = 0; i < HEIGHT; i++)
     	{
-            System.out.print("|");
+            output +="|";
             for (int j = 0; j < WIDTH; j++)
             {
                 if (i == player[ROW] && j == player[COL])
                 {
-                    System.out.print("@");
-                    visited[i][j] = true;
+                    output +="@";
+                    //this.visited[i][j] = true;
                 }
                 else if (i == getStartRow() && j == getStartCol())
                 {
-                    System.out.print("S");
+                    output +="S";
                 }
-                else if (i == getGoalRow() && j == getGoalCol())
+                else if (i == goal[ROW] && j == goal[COL])
                 {
-                    System.out.print("G");
+                    output +="G";
                 }
-                else if (visited[i][j] == true && !(i == getStartRow() && j == getStartCol()))
+                else if ( this.visited[i][j] == true && !(i == getStartRow() && j == getStartCol()))
                 {
-                    System.out.print(".");
+                    output +=".";
                 }
-                else if (blocked[i][j] == true)
+                else if ( getBlockedVal(i, j) == true)
                 {
-                    System.out.print("X");
+                    output +="X";
                 }
-                else if (blocked[i][j] == false)
+                else if ( getBlockedVal(i, j) == false)
                 {
-                    System.out.print(" ");
+                    output +=" ";
                 }
             }
-            System.out.println("|");
+            output +="|\n";
         }
-    	System.out.println("*---------------------------------------*");
+    	output +="*---------------------------------------*";
+        System.out.println(output);
+        output = "";
     }
     private boolean makeMove(String move)
     {
@@ -148,28 +163,28 @@ public class MazeGame
             case 'u':
                 if(valid(player[0] - 1, player[1])) {
                     player[ROW] -= 1;
-                    visit(player[0] - 1, player[1]);
+                    visit(player[0], player[1]);
                     return playerAtGoal();
             }
                 break;
             case 'd':
                 if(valid(player[0] + 1, player[1])) {
                     player[ROW] += 1;
-                    visit(player[0] + 1, player[1]);
+                    visit(player[0], player[1]);
                     return playerAtGoal();
             }
                 break;
             case 'l':
                 if(valid(player[0], player[1] - 1)) {
                     player[COL] -= 1;
-                    visit(player[0], player[1] - 1);
+                    visit(player[0], player[1]);
                     return playerAtGoal();
                 }
                 break;
             case 'r':
                 if(valid(player[0], player[1] + 1)) {
                     player[COL] += 1;
-                    visit(player[0], player[1] + 1);
+                    visit(player[0], player[1]);
                     return playerAtGoal();
                 }
                 break;
@@ -187,7 +202,7 @@ public class MazeGame
             prompt();
             input = playerInput.next();
         }
-        while(makeMove(input));
+        while(!makeMove(input));
         if(playerAtGoal()) {
             System.out.println("You Won!");
         }
@@ -224,6 +239,12 @@ public class MazeGame
     }
     public boolean[][] getVisited() {
         return copyTwoDimBoolArray(visited);
+    }
+    public boolean getBlockedVal(int i, int j) {
+        return this.blocked[i][j];
+    }
+    public boolean getVisitedVal(int i, int j) {
+        return this.visited[i][j];
     }
     //GETTERS
 
@@ -267,5 +288,40 @@ public class MazeGame
     public void setVisited(boolean[][] input) {
         visited = copyTwoDimBoolArray(input);
     }
+    public void setBlockedVal(boolean input, int i, int j) {
+        this.blocked[i][j] = input;
+    }
+    public void setVisitedVal(boolean input, int i, int j) {
+        this.visited[i][j] = input;
+    }
     //SETTERS
+
+    //TESTING
+    public void testVars() {
+        System.out.println(getGoalCol());
+        System.out.println(getGoalRow());
+        System.out.println(getPlayerCol());
+        System.out.println(getPlayerRow());
+        System.out.println(getStartCol());
+        System.out.println(getStartRow());
+    }
+    public void testBlocked() {
+        for(int i = 0; i < HEIGHT; i++) {
+            for(int j = 0; j < WIDTH; j++) {
+                if(this.blocked[i][j]) {
+                    System.out.println("true"); return;
+                }
+            }
+        }
+        System.out.println("EMPTY");
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Testing: One Arg Constructor");
+        try {new MazeGame("C:\\Users\\danil\\Desktop\\Lab02\\Lab02\\bin\\data\\hard.txt"); }
+        catch(FileNotFoundException e) {
+            System.out.println("Boy if you dont learn how to type istg.");
+            System.exit(1);
+        }
+    }
 }    
